@@ -1,0 +1,22 @@
+{
+  "name": "grest",
+  "license": "MIT",
+  "tags": [
+    "cross",
+    "google",
+    "rest",
+    "api"
+  ],
+  "classPath": "src",
+  "contributors": [
+    "kevinresol"
+  ],
+  "releasenote": "initial release",
+  "version": "0.0.0",
+  "dependencies": {
+    "tink_http": "",
+    "tink_json": "",
+    "tink_querystring": "",
+    "jsonwebtoken": ""
+  }
+}
