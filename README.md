@@ -7,6 +7,8 @@ Experiment
 
 ```haxe
 public function bar() {
+	// https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets.values/get
+	
 	return token()
 		.next(function(token) return grest.sheets.v4.spreadsheets.Values.get(token, {
 			path: {
