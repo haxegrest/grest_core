@@ -5,9 +5,10 @@ import tink.http.Header;
 import tink.http.Method;
 using tink.CoreApi;
 
-class Gateway {
+@:autoBuild(grest.macro.ApiBuilder.build())
+class Api {
 	
-	public static function call<T>(options:{
+	function __call<T>(options:{
 		token:AccessToken,
 		path:String,
 		query:String,
@@ -15,7 +16,6 @@ class Gateway {
 		?body:String,
 		?headers:Array<HeaderField>,
 	}):Promise<T> {
-		Api;
 		var url = options.path;
 		if(options.query != null) url += '?' + options.query;
 		

@@ -1,5 +1,5 @@
 {
-  "name": "grest",
+  "name": "grest_core",
   "license": "MIT",
   "tags": [
     "cross",
@@ -14,6 +14,7 @@
   "releasenote": "initial release",
   "version": "0.0.0",
   "dependencies": {
+    "tink_macro": "",
     "tink_http": "",
     "tink_json": "",
     "tink_querystring": "",
