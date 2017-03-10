@@ -14,12 +14,14 @@ using tink.CoreApi;
 class ServiceAccountAuthenticator implements Authenticator {
 	
 	var account:ServiceAccount;
+	var scopes:Array<String>;
 	
-	public function new(account) {
+	public function new(account, scopes) {
 		this.account = account;
+		this.scopes = scopes;
 	}
 	
-	public function auth(scopes:Array<String>):Promise<AccessToken> {
+	public function auth():Promise<AccessToken> {
 		var signer = new BasicSigner(RS256({privateKey: account.private_key}));
 		var payload:AuthClaims = {
 			iss: account.client_email,
@@ -43,7 +45,8 @@ class ServiceAccountAuthenticator implements Authenticator {
 					body: body,
 				}).all();
 			})
-			.next(function(res) return Json.parse((res.body.toString():TokenResponse)))
+			// .next(function(res) return Json.parse((res.body.toString():TokenResponse)))
+			.next(function(res):TokenResponse return Json.parse(res.body.toString()))
 			.next(AccessToken.fromResponse);
 	}
 }
