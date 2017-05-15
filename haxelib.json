@@ -14,10 +14,8 @@
   "releasenote": "initial release",
   "version": "0.0.0",
   "dependencies": {
-    "tink_macro": "",
-    "tink_http": "",
-    "tink_json": "",
-    "tink_querystring": "",
+    "tink_web": "",
+    "tink_http_fetch": "",
     "jsonwebtoken": ""
   }
 }

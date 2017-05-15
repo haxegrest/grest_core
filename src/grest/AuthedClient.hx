@@ -5,6 +5,7 @@ import tink.http.Request;
 import tink.http.Response;
 import tink.http.Header;
 
+using tink.io.Source;
 using tink.CoreApi;
 
 class AuthedClient implements ClientObject {
@@ -16,17 +17,16 @@ class AuthedClient implements ClientObject {
 		this.proxy = proxy;
 	}
 	
-	public function request(req:OutgoingRequest):Future<IncomingResponse> {
+	public function request(req:OutgoingRequest):Promise<IncomingResponse> {
 		return auth.auth()
 			.next(function(token) {
-				req.header.fields.push(new HeaderField('authorization', 'Bearer ' + token.accessToken));
+				@:privateAccess req.header.fields.push(new HeaderField('authorization', 'Bearer ' + token.accessToken));
 				return req.body.all();
 			})
 			.next(function(bytes) { // TODO: tink_web should do this...
-				req.header.fields.push(new HeaderField(ContentLength, Std.string(bytes.length)));
+				@:privateAccess req.header.fields.push(new HeaderField(CONTENT_LENGTH, Std.string(bytes.length)));
 				@:privateAccess req.body = bytes;
 				return proxy.request(req);
-			})
-			.recover(IncomingResponse.reportError);
+			});
 	}
 }

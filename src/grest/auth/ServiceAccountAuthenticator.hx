@@ -22,7 +22,8 @@ class ServiceAccountAuthenticator implements Authenticator {
 	}
 	
 	public function auth():Promise<AccessToken> {
-		var signer = new BasicSigner(RS256({privateKey: account.private_key}));
+		var crypto = new NodeCrypto();
+		var signer = new BasicSigner(RS256({publicKey:null, privateKey: account.private_key}), crypto);
 		var payload:AuthClaims = {
 			iss: account.client_email,
 			scope: scopes.join(' '),
@@ -39,8 +40,8 @@ class ServiceAccountAuthenticator implements Authenticator {
 				return fetch('https://www.googleapis.com/oauth2/v4/token', {
 					method: POST,
 					headers: [
-						new HeaderField(ContentType, 'application/x-www-form-urlencoded'),
-						new HeaderField(ContentLength, Std.string(body.length)),
+						new HeaderField(CONTENT_TYPE, 'application/x-www-form-urlencoded'),
+						new HeaderField(CONTENT_LENGTH, Std.string(body.length)),
 					],
 					body: body,
 				}).all();
