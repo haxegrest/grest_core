@@ -11,22 +11,39 @@ using tink.CoreApi;
 class AuthedClient implements ClientObject {
 	var auth:Authenticator;
 	var proxy:Client;
+	var mode:Mode;
 	
 	public function new (auth, proxy) {
 		this.auth = auth;
 		this.proxy = proxy;
+		this.mode = Query;
 	}
 	
 	public function request(req:OutgoingRequest):Promise<IncomingResponse> {
 		return auth.auth()
 			.next(function(token) {
-				@:privateAccess req.header.fields.push(new HeaderField('authorization', 'Bearer ' + token.accessToken));
-				return req.body.all();
-			})
-			.next(function(bytes) { // TODO: tink_web should do this...
-				@:privateAccess req.header.fields.push(new HeaderField(CONTENT_LENGTH, Std.string(bytes.length)));
-				@:privateAccess req.body = bytes;
+				req = switch mode {
+					case Header:
+						new OutgoingRequest(
+							req.header.concat([new HeaderField('authorization', 'Bearer ' + token.accessToken)]),
+							req.body
+						);
+					case Query:
+						var url = req.header.url + (switch req.header.url.query {
+							case null | '': '?';
+							default: '&';
+						}) + 'access_token=${token.accessToken}';
+						new OutgoingRequest(
+							new OutgoingRequestHeader(req.header.method, url, req.header.version, [for(h in req.header) h]),
+							req.body
+						);
+				}
 				return proxy.request(req);
 			});
 	}
+}
+
+enum Mode {
+	Header;
+	Query;
 }

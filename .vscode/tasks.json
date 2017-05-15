@@ -1,10 +1,7 @@
 {
     "version": "0.1.0",
-    "command": "haxe",
-    "args": ["build.hxml"],
-    "options": {
-        "cwd": "${workspaceRoot}/generator"
-    },
+    "command": "haxelib",
+    "args": ["run","travix","node"],
     "problemMatcher": {
         "owner": "haxe",
         "pattern": {

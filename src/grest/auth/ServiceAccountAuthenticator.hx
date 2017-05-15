@@ -22,7 +22,7 @@ class ServiceAccountAuthenticator implements Authenticator {
 	}
 	
 	public function auth():Promise<AccessToken> {
-		var crypto = new NodeCrypto();
+		var crypto = new DefaultCrypto();
 		var signer = new BasicSigner(RS256({publicKey:null, privateKey: account.private_key}), crypto);
 		var payload:AuthClaims = {
 			iss: account.client_email,
