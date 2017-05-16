@@ -12,7 +12,7 @@ import tink.QueryString;
 using DateTools;
 using tink.CoreApi;
 
-class ClientSideAuthenticator implements Authenticator {
+class JsAuthenticator implements Authenticator {
 	
 	var clientId:String;
 	var accessToken:String;
@@ -31,7 +31,7 @@ class ClientSideAuthenticator implements Authenticator {
 			scope: scopes.join(' '),
 		});
 		
-		return 'https://accounts.google.com/o/oauth2/v2/auth?$body';
+		js.Browser.window.location.href = 'https://accounts.google.com/o/oauth2/v2/auth?$body';
 	}
 	
 	public function auth():Promise<AccessToken> {
