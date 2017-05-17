@@ -16,7 +16,7 @@ class JsAuthenticator implements Authenticator {
 	
 	var clientId:String;
 	var accessToken:String;
-	var verified:Option<Outcome<AccessToken, Error>> = None;
+	var promise:Promise<AccessToken>;
 	
 	public function new(clientId, accessToken) {
 		this.clientId = clientId;
@@ -35,33 +35,30 @@ class JsAuthenticator implements Authenticator {
 	}
 	
 	public function auth():Promise<AccessToken> {
-		return switch verified {
-			case Some(Success(v)): v;
-			case Some(Failure(e)): e;
-			case None:
-				fetch('https://www.googleapis.com/oauth2/v3/tokeninfo?access_token=$accessToken').all()
-					.next(function(res):TokenInfo return Json.parse(res.body.toString()))
-					.next(function(info) {
-						return
-							if(info.error != null) {
-								var err = new Error('Invalid Token: ${info.error}');
-								verified = Some(Failure(err));
-								err;
-							} else if(info.aud != clientId) {
-								var err = new Error('Expected aud to be $clientId but got ${info.aud}');
-								verified = Some(Failure(err));
-								err;
-							} else {
-								var token = {
-									accessToken: accessToken,
-									expiry: Date.now().delta(info.expires_in * 1000),
-								};
-								verified = Some(Success(token));
-								token;
-							}
-					});
-			
+		if(promise == null) {
+			promise = fetch('https://www.googleapis.com/oauth2/v3/tokeninfo?access_token=$accessToken').all()
+				.next(function(res):TokenInfo return Json.parse(res.body.toString()))
+				.next(function(info) {
+					return
+						if(info.error != null) {
+							var err = new Error('Invalid Token: ${info.error}');
+							verified = Some(Failure(err));
+							err;
+						} else if(info.aud != clientId) {
+							var err = new Error('Expected aud to be $clientId but got ${info.aud}');
+							verified = Some(Failure(err));
+							err;
+						} else {
+							var token = {
+								accessToken: accessToken,
+								expiry: Date.now().delta(info.expires_in * 1000),
+							};
+							verified = Some(Success(token));
+							token;
+						}
+				});
 		}
+		return promise;
 	}
 }
 
