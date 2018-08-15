@@ -13,10 +13,10 @@ class AuthedClient implements ClientObject {
 	var proxy:Client;
 	var mode:Mode;
 	
-	public function new (auth, proxy) {
+	public function new (auth, proxy, mode) {
 		this.auth = auth;
 		this.proxy = proxy;
-		this.mode = Query;
+		this.mode = mode;
 	}
 	
 	public function request(req:OutgoingRequest):Promise<IncomingResponse> {
@@ -34,7 +34,7 @@ class AuthedClient implements ClientObject {
 							default: '&';
 						}) + 'access_token=${token.accessToken}';
 						new OutgoingRequest(
-							new OutgoingRequestHeader(req.header.method, url, req.header.version, [for(h in req.header) h]),
+							new OutgoingRequestHeader(req.header.method, url, req.header.protocol, [for(h in req.header) h]),
 							req.body
 						);
 				}
