@@ -13,7 +13,7 @@ class AuthedClient implements ClientObject {
 	var proxy:Client;
 	var mode:Mode;
 	
-	public function new (auth, proxy, mode) {
+	public function new (auth, proxy, mode = Header) {
 		this.auth = auth;
 		this.proxy = proxy;
 		this.mode = mode;

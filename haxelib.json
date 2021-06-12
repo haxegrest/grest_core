@@ -15,7 +15,6 @@
   "version": "0.0.0",
   "dependencies": {
     "tink_web": "",
-    "tink_http_fetch": "",
     "jsonwebtoken": ""
   }
 }

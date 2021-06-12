@@ -13,27 +13,27 @@ using tink.CoreApi;
 
 class ServiceAccountAuthenticator implements Authenticator {
 	
-	var genToken:Void->Promise<AccessToken>;
+	final genToken:Void->Promise<AccessToken>;
 	
 	public function new(account, scopes) {
-		var crypto = new DefaultCrypto();
-		var signer = new BasicSigner(RS256({publicKey:null, privateKey: account.private_key}), crypto);
+		final crypto = new DefaultCrypto();
+		final signer = new BasicSigner(RS256({publicKey:null, privateKey: account.private_key}), crypto);
 		
-		genToken = Promise.cache(function() {
-			var payload:AuthClaims = {
+		genToken = Promise.cache(() -> {
+			final payload:AuthClaims = {
 				iss: account.client_email,
 				scope: scopes.join(' '),
 				aud: 'https://www.googleapis.com/oauth2/v4/token',
 				exp: Std.int(Date.now().getTime() / 1000 + 3600),
 				iat: Std.int(Date.now().getTime() / 1000),
 			}
-			return signer.sign(payload)
-				.next(function(token) {
-					var body = QueryString.build({
+			signer.sign(payload)
+				.next(token -> {
+					final body = QueryString.build({
 						grant_type: 'urn:ietf:params:oauth:grant-type:jwt-bearer',
 						assertion: token,
 					});
-					return fetch('https://www.googleapis.com/oauth2/v4/token', {
+					fetch('https://www.googleapis.com/oauth2/v4/token', {
 						method: POST,
 						headers: [
 							new HeaderField(CONTENT_TYPE, 'application/x-www-form-urlencoded'),
@@ -42,12 +42,9 @@ class ServiceAccountAuthenticator implements Authenticator {
 						body: body,
 					}).all();
 				})
-				.next(function(res):TokenResponse return Json.parse(res.body.toString()))
+				.next(res -> Json.parse((res.body.toString():TokenResponse)))
 				.next(AccessToken.fromResponse)
-				.next(function(token) {
-					var delay = Std.int(token.expiry.getTime() - Date.now().getTime());
-					return new Pair(token, Future.async(function(cb) haxe.Timer.delay(cb.bind(Noise), delay)));
-				});
+				.next(token -> return new Pair(token, Future.delay(Std.int(token.expiry.getTime() - Date.now().getTime()), Noise)));
 		});
 	}
 	
